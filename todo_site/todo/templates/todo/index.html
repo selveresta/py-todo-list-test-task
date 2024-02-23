@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>{{ title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!-- style -->
+    <style>
+      .card {
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.5), 0 6px 20px 0 rgba(0, 0, 0, 0.39);
+        background: #5f9ea0;
+        margin-bottom: 5%;
+        border-radius: 25px;
+        padding: 2%;
+        overflow: auto;
+        text-overflow: ellipsis;
+      }
+      .card:hover {
+        background: lightblue;
+      }
+      
+      .submit_form {
+        text-align: center;
+        padding: 3%;
+        background: #00bfff;
+        border-radius: 25px;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.4), 0 6px 20px 0 rgba(0, 0, 0, 0.36);
+      }
+    </style>
+  </head>
+
+  <body class="container-fluid">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-info">
+          <strong>{{ message }}</strong>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <center class="row">
+      <h1><i>TODO LIST</i></h1>
+      <hr />
+    </center>
+
+    <div class="row">
+      <div class="col-md-1">
+        <div class="row-md-2">
+          <a href="{% url 'todo' %}" class="m-2 p-2"><button class="btn btn-light p-5 font-weight-bold">Home</button></a>
+        </div>
+        <div class="row-md-2">
+          <br />
+        </div>
+        <div class="row-md-2">
+          <a href="{% url 'tags' %}" class="m-2 p-2"><button class="btn btn-light p-5 font-weight-bold">Tags</button></a>
+        </div>
+      </div>
+      <div class="col-md-6">
+        {% for i in list %}
+          <div class="card">
+            {{ i.content }}
+            {% if not i.is_done %}
+              <span style="color: red;">Dont Complete</span>
+            {% endif %}
+            {% if i.is_done %}
+              <span style="color: green;">Complete</span>
+            {% endif %}
+            <hr />Created at :{{ i.created_datetime }}
+            {% if not i.is_done %}
+              Dont Complete, <span style="color: red;">Deadline: {{ i.deadline_datetime }}</span>
+            {% endif %}
+            <hr />Tags: {{ i.tags }}
+            <br />
+            <br />
+            <div style="display: grid; grid-template-columns: 1fr 5fr;">
+              <div>
+                <form action="/del/{{ i.id }}" method="POST" style="padding: 2px;">
+                  {% csrf_token %}
+                  <button value="Remove" type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-trash"></span> remove</button>
+                </form>
+              </div>
+              <div>
+                {% if not i.is_done %}
+                  <form action="/makeComplete/{{ i.id }}" method="POST" style="padding: 2px;">
+                    {% csrf_token %}
+                    <button value="Make Complete" type="submit" class="btn btn-success">Make Complete</button>
+                  </form>
+                {% endif %}
+                {% if i.is_done %}
+                  <form action="/undo/{{ i.id }}" method="POST" style="padding: 2px;">
+                    {% csrf_token %}
+                    <button value="Undo" type="submit" class="btn btn-secondary">Undo</button>
+                  </form>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      <div class="col-md-1"></div>
+      <div class="col-md-3">
+        <center>
+          <h2>Add Todo</h2>
+        </center>
+        <div class="submit_form">
+          <form method="POST">
+            {% csrf_token %}
+            {{ forms.todoForm.as_p }}
+            <center>
+              <input type="submit" class="btn btn-default" value="submit" />
+            </center>
+          </form>
+        </div>
+        <br />
+        <br />
+        <br />
+        <center>
+          <h2>Add Tag</h2>
+        </center>
+        <div class="submit_form">
+          <form method="POST">
+            {% csrf_token %}
+            {{ forms.tagForm.as_p }}
+            <center>
+              <input type="submit" class="btn btn-default" value="submit" />
+            </center>
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
